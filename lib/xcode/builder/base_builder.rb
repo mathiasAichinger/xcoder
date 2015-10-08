@@ -26,7 +26,7 @@ module Xcode
             @profile = ProvisioningProfile.new(value)
           end
       end
-        
+
       def cocoapods_installed?
         system("which pod > /dev/null 2>&1")
       end
@@ -43,7 +43,7 @@ module Xcode
         if has_dependencies? and cocoapods_installed?
           print_task :builder, "Fetch depencies", :notice
           podfile = File.join(File.dirname(@target.project.path), "Podfile")
-   
+
           print_task :cocoapods, "pod setup", :info
           with_command('pod setup').execute
 
@@ -57,10 +57,10 @@ module Xcode
 
           cmd.log_to_file = true
           cmd.attach Xcode::Builder::XcodebuildParser.new
-          
+
           cmd.env["OBJROOT"]  = "\"#{objroot}/\""
           cmd.env["SYMROOT"]  = "\"#{symroot}/\""
-            
+
           unless profile.nil?
             profile.install
             print_task "builder", "Using profile #{profile.install_path}", :debug
@@ -77,12 +77,13 @@ module Xcode
             cmd.env["CODE_SIGN_IDENTITY"]     = "\"#{@identity}\""
           end
 
-          cmd << "-sdk #{sdk}" unless sdk.nil?
+          #cmd << "-sdk #{sdk}" unless sdk.nil?
+          cmd << "-destination 'generic/platform=iOS'"
 
           yield cmd if block_given?
         end
-      end      
-      
+      end
+
       def with_command command_line
         cmd = Xcode::Shell::Command.new command_line
         cmd.output_dir = objroot
@@ -308,7 +309,7 @@ module Xcode
         @objroot ||= build_path
       end
 
-      def symroot                
+      def symroot
         @symroot ||= File.join(build_path, 'Products')
       end
 
